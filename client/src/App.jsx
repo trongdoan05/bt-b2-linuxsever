@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react';
 
 function App() {
   const [students, setStudents] = useState([]);
+  const [editingId, setEditingId] = useState(null); 
   const [formData, setFormData] = useState({
     studentId: '',
     name: '',
     email: ''
   });
 
-  // CÂU 47: Gọi API lấy danh sách sinh viên qua Proxy
   const fetchStudents = async () => {
     try {
       const response = await fetch('/api/students');
@@ -23,28 +23,50 @@ function App() {
     fetchStudents();
   }, []);
 
-  // Hàm xử lý khi gõ vào ô input
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // CÂU 49: Gửi POST thêm sinh viên mới qua Proxy
+  // Xử lý Thêm hoặc Cập nhật
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Ngăn load lại trang
+    e.preventDefault();
     try {
-      const response = await fetch('/api/students', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      
-      if (response.ok) {
+      if (editingId) {
+        await fetch(`/api/students/${editingId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+        alert("Cập nhật thành công!");
+        setEditingId(null);
+      } else {
+        await fetch('/api/students', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
         alert("Thêm sinh viên thành công!");
-        setFormData({ studentId: '', name: '', email: '' }); // Xóa trắng form
-        fetchStudents(); // Cập nhật lại bảng dữ liệu
       }
+      setFormData({ studentId: '', name: '', email: '' }); 
+      fetchStudents(); 
     } catch (error) {
-      console.error('Lỗi thêm sinh viên:', error);
+      console.error('Lỗi xử lý form:', error);
+    }
+  };
+
+  const handleEdit = (student) => {
+    setFormData({ studentId: student.studentId, name: student.name, email: student.email });
+    setEditingId(student._id);
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Bạn có chắc chắn muốn xóa sinh viên này?")) {
+      try {
+        await fetch(`/api/students/${id}`, { method: 'DELETE' });
+        fetchStudents();
+      } catch (error) {
+        console.error('Lỗi xóa sinh viên:', error);
+      }
     }
   };
 
@@ -52,37 +74,37 @@ function App() {
     <div style={{ padding: '30px', fontFamily: 'sans-serif' }}>
       <h2>Hệ thống Quản lý Sinh viên</h2>
       
-      {/* CÂU 48: Form nhập MSSV, Họ tên, Email */}
       <form onSubmit={handleSubmit} style={{ marginBottom: '20px' }}>
         <input type="text" name="studentId" placeholder="MSSV" value={formData.studentId} onChange={handleChange} required style={{ marginRight: '10px', padding: '5px' }} />
         <input type="text" name="name" placeholder="Họ tên" value={formData.name} onChange={handleChange} required style={{ marginRight: '10px', padding: '5px' }} />
         <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} required style={{ marginRight: '10px', padding: '5px' }} />
-        <button type="submit" style={{ padding: '6px 15px', cursor: 'pointer' }}>Thêm</button>
+        <button type="submit" style={{ padding: '6px 15px', cursor: 'pointer', backgroundColor: editingId ? '#ffc107' : '#4CAF50', color: editingId ? 'black' : 'white' }}>
+          {editingId ? 'Cập nhật' : 'Thêm'}
+        </button>
+        {editingId && <button type="button" onClick={() => { setEditingId(null); setFormData({ studentId: '', name: '', email: '' }) }} style={{ marginLeft: '10px', padding: '6px' }}>Hủy</button>}
       </form>
 
-      {/* Bảng hiển thị (thuộc CÂU 47) */}
       <table border="1" style={{ borderCollapse: 'collapse', width: '100%', textAlign: 'left' }}>
         <thead>
           <tr style={{ backgroundColor: '#f2f2f2' }}>
             <th style={{ padding: '8px' }}>MSSV</th>
             <th style={{ padding: '8px' }}>Họ tên</th>
             <th style={{ padding: '8px' }}>Email</th>
+            <th style={{ padding: '8px', textAlign: 'center' }}>Hành động</th>
           </tr>
         </thead>
         <tbody>
-          {students.length > 0 ? (
-            students.map((student) => (
-              <tr key={student._id}>
-                <td style={{ padding: '8px' }}>{student.studentId}</td>
-                <td style={{ padding: '8px' }}>{student.name}</td>
-                <td style={{ padding: '8px' }}>{student.email}</td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="3" style={{ padding: '8px', textAlign: 'center' }}>Chưa có sinh viên nào</td>
+          {students.map((student) => (
+            <tr key={student._id}>
+              <td style={{ padding: '8px' }}>{student.studentId}</td>
+              <td style={{ padding: '8px' }}>{student.name}</td>
+              <td style={{ padding: '8px' }}>{student.email}</td>
+              <td style={{ padding: '8px', textAlign: 'center' }}>
+                <button onClick={() => handleEdit(student)} style={{ marginRight: '10px', cursor: 'pointer' }}>Sửa</button>
+                <button onClick={() => handleDelete(student._id)} style={{ color: 'red', cursor: 'pointer' }}>Xóa</button>
+              </td>
             </tr>
-          )}
+          ))}
         </tbody>
       </table>
     </div>
