@@ -11,7 +11,8 @@ function App() {
 
   const fetchStudents = async () => {
     try {
-      const response = await fetch('/api/students');
+      // Đã sửa thành link tuyệt đối trỏ về Backend
+      const response = await fetch('http://localhost:5000/api/students');
       const data = await response.json();
       setStudents(data);
     } catch (error) {
@@ -32,7 +33,8 @@ function App() {
     e.preventDefault();
     try {
       if (editingId) {
-        await fetch(`/api/students/${editingId}`, {
+        // Đã sửa thành link tuyệt đối trỏ về Backend
+        await fetch(`http://localhost:5000/api/students/${editingId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData)
@@ -40,7 +42,8 @@ function App() {
         alert("Cập nhật thành công!");
         setEditingId(null);
       } else {
-        await fetch('/api/students', {
+        // Đã sửa thành link tuyệt đối trỏ về Backend
+        await fetch('http://localhost:5000/api/students', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData)
@@ -62,7 +65,8 @@ function App() {
   const handleDelete = async (id) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa sinh viên này?")) {
       try {
-        await fetch(`/api/students/${id}`, { method: 'DELETE' });
+        // Đã sửa thành link tuyệt đối trỏ về Backend
+        await fetch(`http://localhost:5000/api/students/${id}`, { method: 'DELETE' });
         fetchStudents();
       } catch (error) {
         console.error('Lỗi xóa sinh viên:', error);

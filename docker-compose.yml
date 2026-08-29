@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  backend:
+    build: 
+      context: ./mern-demo/server
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./mern-demo/.env
+
+  frontend:
+    build: 
+      context: ./client
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
