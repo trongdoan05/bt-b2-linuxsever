@@ -60,8 +60,6 @@ app.post('/api/students', async (req, res) => {
     }
 });
 
-// --- CODE MỚI ĐƯỢC THÊM VÀO: API XÓA VÀ CẬP NHẬT ---
-
 // CÂU 38: Xóa sinh viên (DELETE)
 app.delete('/api/students/:id', async (req, res) => {
     try {
@@ -86,8 +84,19 @@ app.put('/api/students/:id', async (req, res) => {
     }
 });
 
+// --- CODE MỚI THÊM CHO BUỔI 6: API HEALTH CHECK ---
+// CÂU 44: Health Check Endpoint cho Cloud PaaS Monitoring
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'UP',
+    timestamp: new Date(),
+    uptime: process.uptime()
+  });
+});
+
 // --- LỆNH KHỞI ĐỘNG SERVER (Luôn nằm ở cuối file) ---
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`Server Backend đang chạy tại port ${PORT}`);
+    // CÂU 20: Đã sửa thông báo log để test Webhook Auto-Deploy
+    console.log(`Server Backend (Auto-Deploy) đang chạy tại port ${PORT}`);
 });
