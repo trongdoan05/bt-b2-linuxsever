@@ -11,8 +11,7 @@ function App() {
 
   const fetchStudents = async () => {
     try {
-      // Đã sửa thành link tuyệt đối trỏ về Backend
-      const response = await fetch('http://localhost:5000/api/students');
+      const response = await fetch('https://mern-backend-11311.onrender.com/api/students');
       const data = await response.json();
       setStudents(data);
     } catch (error) {
@@ -28,13 +27,11 @@ function App() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Xử lý Thêm hoặc Cập nhật
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       if (editingId) {
-        // Đã sửa thành link tuyệt đối trỏ về Backend
-        await fetch(`http://localhost:5000/api/students/${editingId}`, {
+        await fetch('https://mern-backend-11311.onrender.com/api/students/' + editingId, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData)
@@ -42,8 +39,7 @@ function App() {
         alert("Cập nhật thành công!");
         setEditingId(null);
       } else {
-        // Đã sửa thành link tuyệt đối trỏ về Backend
-        await fetch('http://localhost:5000/api/students', {
+        await fetch('https://mern-backend-11311.onrender.com/api/students', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData)
@@ -65,8 +61,7 @@ function App() {
   const handleDelete = async (id) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa sinh viên này?")) {
       try {
-        // Đã sửa thành link tuyệt đối trỏ về Backend
-        await fetch(`http://localhost:5000/api/students/${id}`, { method: 'DELETE' });
+        await fetch('https://mern-backend-11311.onrender.com/api/students/' + id, { method: 'DELETE' });
         fetchStudents();
       } catch (error) {
         console.error('Lỗi xóa sinh viên:', error);
@@ -76,7 +71,7 @@ function App() {
 
   return (
     <div style={{ padding: '30px', fontFamily: 'sans-serif' }}>
-      <h2>Hệ thống Quản lý Sinh viên</h2>
+      <h2>Hệ thống Quản lý Sinh viên - Trọng Đoàn</h2>
       
       <form onSubmit={handleSubmit} style={{ marginBottom: '20px' }}>
         <input type="text" name="studentId" placeholder="MSSV" value={formData.studentId} onChange={handleChange} required style={{ marginRight: '10px', padding: '5px' }} />

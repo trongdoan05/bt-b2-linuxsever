@@ -5,8 +5,23 @@ const cors = require('cors'); // Bắt buộc phải có để Frontend (React) 
 
 const app = express();
 
-// Bật CORS cho toàn bộ server
-app.use(cors());
+// --- Cấu hình CORS linh hoạt cho Production ---
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  'http://localhost:5173',
+  'http://localhost:3000'
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
+      callback(null, true);
+    } else {
+      callback(null, true); 
+    }
+  },
+  credentials: true
+}));
 
 // Cho phép Express đọc được dữ liệu JSON gửi lên
 app.use(express.json());
@@ -25,7 +40,7 @@ const studentSchema = new mongoose.Schema({
 });
 const Student = mongoose.model('Student', studentSchema);
 
-// CÂU 36: Lấy danh sách
+// CÂU 36: Lấy danh sách (GET)
 app.get('/api/students', async (req, res) => {
     try {
         const students = await Student.find();
@@ -35,13 +50,39 @@ app.get('/api/students', async (req, res) => {
     }
 });
 
-// CÂU 37: Thêm sinh viên
+// CÂU 37: Thêm sinh viên (POST)
 app.post('/api/students', async (req, res) => {
     try {
         const newStudent = await Student.create(req.body);
         res.status(201).json(newStudent);
     } catch (error) {
         res.status(400).json({ message: error.message });
+    }
+});
+
+// --- CODE MỚI ĐƯỢC THÊM VÀO: API XÓA VÀ CẬP NHẬT ---
+
+// CÂU 38: Xóa sinh viên (DELETE)
+app.delete('/api/students/:id', async (req, res) => {
+    try {
+        await Student.findByIdAndDelete(req.params.id);
+        res.status(200).json({ message: "Xóa sinh viên thành công" });
+    } catch (error) {
+        res.status(500).json({ message: "Lỗi hệ thống khi xóa: " + error.message });
+    }
+});
+
+// CÂU 39: Cập nhật thông tin sinh viên (PUT)
+app.put('/api/students/:id', async (req, res) => {
+    try {
+        const updatedStudent = await Student.findByIdAndUpdate(
+            req.params.id, 
+            req.body, 
+            { new: true } // Trả về dữ liệu mới sau khi cập nhật
+        );
+        res.status(200).json(updatedStudent);
+    } catch (error) {
+        res.status(400).json({ message: "Lỗi hệ thống khi cập nhật: " + error.message });
     }
 });
 

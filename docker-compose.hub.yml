@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  backend:
+    image: trongdoan05/mern-backend:1.0
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./mern-demo/.env
+
+  frontend:
+    image: trongdoan05/mern-frontend:1.0
+    ports:
+      - "3000:3000"
